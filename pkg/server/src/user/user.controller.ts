@@ -42,7 +42,7 @@ export const makeDeleteUserByID = (
     try {
       await service.deleteUserById(id);
       return {
-        statusCode: httpStatus.OK,
+        statusCode: httpStatus.NO_CONTENT,
       };
     } catch (err) {
       return {
@@ -58,6 +58,7 @@ export const makeCreateUser = (
   return async (req, res) => {
     try {
       const existingUser = await service.getUserByEmail(req.body.email);
+
       if (existingUser !== null) {
         return {
           statusCode: httpStatus.CONFLICT,
@@ -70,10 +71,11 @@ export const makeCreateUser = (
         secrets.token_secret,
         `${serverConfig.tokenMaxAge}s`,
       );
+
       setAuthCookies(res, token, serverConfig.tokenMaxAge);
 
       return {
-        statusCode: httpStatus.OK,
+        statusCode: httpStatus.CREATED,
         body: user,
       };
     } catch (err) {

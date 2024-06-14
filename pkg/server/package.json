@@ -1,48 +1,41 @@
 {
-    "name": "@task/api",
-    "version": "1.0.0",
-    "private": true,
-    "scripts": {
-        "start": "node dist/index.js",
-        "dev": "pnpm run build && NODE_ENV=development node dist/index.js",
-        "test": "jest --detectOpenHandles --runInBand",
-        "test:coverage": "jest --coverage",
-        "lint": "yarn eslint src --ext ts,tsx && yarn typecheck",
-        "clean": "rimraf globalConfig.json dist *.tsbuildinfo",
-        "clean-all": "yarn clean && rimraf node_modules types",
-        "build": "node esbuild.config.js",
-        "ts-types": "tsc --emitDeclarationOnly --outDir ./libs/server/dist",
-        "db:index": "sh scripts/create-db-index.sh",
-        "type-check": "tsc --noEmit --outDir ../../.cache",
-        "prettier": "prettier",
-        "preinstall": "npx only-allow pnpm"
-    },
-    "dependencies": {
-        "@types/pg": "^8.11.6",
-        "compression": "^1.7.4",
-        "cookie": "^0.6.0",
-        "cookie-parser": "^1.4.6",
-        "cors": "^2.8.5",
-        "dotenv": "^16.4.5",
-        "express": "^4.19.2",
-        "helmet": "^7.1.0",
-        "http-status": "^1.7.4",
-        "jsonwebtoken": "^9.0.2",
-        "pg": "^8.12.0",
-        "uuid": "^10.0.0",
-        "zod": "^3.23.8"
-    },
-    "devDependencies": {
-        "@types/compression": "^1.7.5",
-        "@types/cookie": "^0.6.0",
-        "@types/cookie-parser": "^1.4.7",
-        "@types/cors": "^2.8.17",
-        "@types/express": "^4.17.21",
-        "@types/jsonwebtoken": "^9.0.6",
-        "@types/node": "^20.14.2",
-        "@types/uuid": "^9.0.8",
-        "esbuild": "^0.21.5",
-        "esbuild-plugin-clean": "^1.0.1",
-        "rimraf": "^5.0.7"
-    }
+  "name": "@task/api",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node dist/index.js",
+    "test:unit": "vitest --run ./src",
+    "test:integration": "vitest --run --sequence.concurrent ./tests",
+    "build": "node esbuild.config.js",
+    "type-check": "tsc --noEmit --outDir ../../.cache",
+    "prettier": "prettier",
+    "preinstall": "npx only-allow pnpm"
+  },
+  "dependencies": {
+    "compression": "^1.7.4",
+    "cookie": "^0.6.0",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "helmet": "^7.1.0",
+    "http-status": "^1.7.4",
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.12.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/compression": "^1.7.5",
+    "@types/cookie": "^0.6.0",
+    "@types/cookie-parser": "^1.4.7",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/jsonwebtoken": "^9.0.6",
+    "@types/node": "^20.14.2",
+    "@types/pg": "^8.11.6",
+    "esbuild": "^0.21.5",
+    "esbuild-plugin-clean": "^1.0.1",
+    "supertest": "^7.0.0",
+    "vitest": "^1.6.0"
+  }
 }

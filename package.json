@@ -7,6 +7,8 @@
   "private": true,
   "scripts": {
     "purge:node-modules": "find . -name 'node_modules' -type d -prune -exec rm -rf '{}' +",
+    "test:server:unit": "pnpm --filter=@task/api test:unit",
+    "test:server:integration": "docker compose -f docker-compose-test.yml up -d && pnpm --filter=@task/api test:integration && docker compose -f docker-compose-test.yml down",
     "preinstall": "npx only-allow pnpm"
   },
   "keywords": [],

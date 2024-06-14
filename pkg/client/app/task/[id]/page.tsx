@@ -30,7 +30,7 @@ function TaskDetailPage({ params }: { params: { id: string } }) {
           className={styles.pre}
         >{`${time.getDate()}-${time.getMonth()}-${time.getFullYear()} | ${time.getHours()}:${time.getMinutes()}`}</pre>
       </h1>
-      <p className={styles.content}>{task?.content} lorem ipsum dolreasdjn asd as</p>
+      <p className={styles.content}>{task?.content}</p>
     </section>
   ) : null;
 }

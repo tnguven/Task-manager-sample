@@ -4,7 +4,6 @@ import { Pool } from "pg";
 
 export type TaskServiceType = ReturnType<typeof makeTaskService>;
 
-// TODO: test it
 export const getTaskIdsAndStatement = (taskOrders: OrderUpdateReqBody[]) =>
   taskOrders.reduce(
     (state, { id, position }) => {
@@ -78,16 +77,20 @@ export const makeTaskService = ({ dbPool }: { dbPool: Pool }) => ({
 
   async updateTaskPosition(taskOrders: OrderUpdateReqBody[], userId: number) {
     const { ids, caseStatements } = getTaskIdsAndStatement(taskOrders);
-
-    await dbPool.query(
-      `
+    try {
+      await dbPool.query(
+        `
           UPDATE task_order
           SET position = CASE task_id
               ${caseStatements}
           END
           WHERE user_id = $1 AND task_id IN (${ids})
-      `,
-      [userId],
-    );
+        `,
+        [userId],
+      );
+    } catch (err) {
+      console.error("an error occur while updating position ", err);
+      throw err;
+    }
   },
 });

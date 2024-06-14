@@ -19,7 +19,7 @@ export async function authenticateCookie(req: Request, res: Response, next: Next
     const { id } = (await verifyJwtToken(JWToken)) as unknown as User;
     req.user = { id: Number(id) };
 
-    // Will generate every five min if the token does not expires;
+    // Will generate every ten min if the token does not expires;
     // Just adhoc solution to keep user logged in for the purpose of this example
     const token = generateAccessToken(req.user);
     setAuthCookies(res, token, serverConfig.tokenMaxAge);

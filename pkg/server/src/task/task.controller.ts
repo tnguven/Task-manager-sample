@@ -32,7 +32,8 @@ export const makeCreateTask =
         statusCode: httpStatus.OK,
         body: task,
       };
-    } catch {
+    } catch (err) {
+      console.error(err);
       return {
         statusCode: httpStatus.INTERNAL_SERVER_ERROR,
       };
