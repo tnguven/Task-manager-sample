@@ -1,0 +1,8 @@
+.taskItem {
+  padding: 0.5rem 1rem;
+  border: 1px dashed gray;
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+  background-color: #efefef;
+  cursor: move;
+}

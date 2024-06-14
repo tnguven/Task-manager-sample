@@ -1,0 +1,28 @@
+.taskDetail {
+   width: 60%;
+ }
+ 
+ .h1 {
+   display: flex;
+   justify-content: space-between;
+   align-items: center;
+   border-bottom: 1px solid gray;
+ }
+
+ .pre {
+   font-size: small;
+   font-weight: lighter;
+   font-style: italic;
+ }
+
+ .btn {
+   padding: 0.5em 1.3em;
+   border: none;
+   border-radius: 6px;
+   background-color: black;
+   color: white;
+ }
+
+ .content {
+   font-size: 1.4em;
+ }

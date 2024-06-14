@@ -1,0 +1,24 @@
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btnBlock {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: space-evenly;
+  margin-bottom: .5em;
+}
+
+.btn {
+  width: 100%;
+  padding: 0.5em 1.3em;
+  border: none;
+  cursor: pointer;
+}
+
+.active {
+  background-color: black;
+  color: white;
+}

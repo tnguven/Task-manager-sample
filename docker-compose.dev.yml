@@ -1,0 +1,78 @@
+services:
+  postgresdb:
+    image: postgres:16
+    container_name: postgresdb
+    restart: unless-stopped
+    # set shared memory limit when using docker-compose
+    shm_size: 256mb
+    environment:
+      POSTGRES_DB: task
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+    volumes:
+      - ./scripts/postgres/:/docker-entrypoint-initdb.d
+      - task-dev-data:/var/lib/postgresql/data
+    ports:
+      - ${DB_PORT}:${DB_PORT}
+    networks:
+      - task-dev-network
+
+  cors:
+    build:
+      context: ./pkg/cors
+      dockerfile: Dockerfile
+    container_name: proxy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    networks:
+      - task-dev-network
+    depends_on:
+      - api
+      # - client
+
+  api:
+    image: server
+    container_name: api
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    ports:
+      - ${PORT}:${PORT}
+    environment:
+      - TOKEN_SECRET=$TOKEN_SECRET
+      - PORT=$PORT
+      - DB_PORT=$DB_PORT
+      - DB_USERNAME=$DB_USERNAME
+      - DB_PASSWORD=$DB_PASSWORD
+      - DB_HOST=$DB_HOST
+    command: ["sh", "-c", "node ./dist/main.js"]
+    networks:
+      - task-dev-network
+    depends_on:
+      - postgresdb
+
+  client:
+    image: next-server
+    container_name: client
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile.client
+    ports:
+      - ${CLIENT_PORT}:${CLIENT_PORT}
+    environment:
+      BASE_URL: $SERVER_HOST
+    command: ['sh', '-c', 'node server.js']
+    networks:
+      - task-dev-network
+    depends_on:
+      - api
+
+volumes:
+  task-dev-data:
+
+networks:
+  task-dev-network:
+    driver: bridge
