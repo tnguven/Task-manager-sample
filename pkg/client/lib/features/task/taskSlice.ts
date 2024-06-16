@@ -41,9 +41,9 @@ export const taskSlice = createAppSlice({
         const changedOrder = state.tasks.reduce(
           (changed, task, i) => {
             if (i === payload.to) {
-              changed[task.id] = payload.from;
+              changed[task.id] = payload.from + 1;
             } else if (i === payload.from) {
-              changed[task.id] = payload.to;
+              changed[task.id] = payload.to + 1;
             }
             return changed;
           },
@@ -95,7 +95,7 @@ export const taskSlice = createAppSlice({
         fulfilled: (state, action) => {
           state.status = "idle";
           state.tasks = action.payload;
-          state.originalOrder = action.payload.reduce(
+          state.originalOrder = (action.payload ?? [])?.reduce(
             (orderMap, task) => {
               orderMap[task.id] = task.position;
               return orderMap;

@@ -10,7 +10,7 @@ test-unit: install
 test-integration: install
 	pnpm run test:server:integration
 
-start: set-env
+start-app: set-env
 	docker compose -f docker-compose.dev.yml up
 
 stop:

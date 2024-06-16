@@ -1,6 +1,8 @@
+import { logger } from "../logger";
+
 export function exitHandler(cb: () => void) {
   const handler = (err: Error) => {
-    console.log("Server shutting down", err);
+    logger.info("Server shutting down", err);
     cb();
   };
 

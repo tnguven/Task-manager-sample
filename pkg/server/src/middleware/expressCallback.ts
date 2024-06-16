@@ -1,6 +1,7 @@
 import type { Response, NextFunction } from "express";
 import type { ParamType, QueryType, ReqObj, ResObj } from "../types";
 import httpStatus from "http-status";
+import { logger } from "../logger";
 
 export type Params = { [key: string]: string };
 
@@ -24,7 +25,7 @@ export function makeExpressCallback<
       res.type("json");
       res.send(httpResponse?.body ?? { success: httpStatus.OK });
     } catch (err) {
-      console.error(err);
+      logger.error(err);
       res.status(500).send({ error: "An unknown error occurred." });
     }
   };

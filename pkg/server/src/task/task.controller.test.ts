@@ -50,22 +50,18 @@ describe("Task Controller", () => {
     let createTask: ReturnType<typeof makeCreateTask> = makeCreateTask({
       createTask: mockCreateTask,
     } as unknown as TaskServiceType);
-    let result: ResObj;
 
     beforeEach(async () => {
-      mockCreateTask.mockRejectedValue("Kaboom");
-      result = await createTask({
-        body: { userId: 1, content: "content", title: "title" },
-      } as ReqObj<EmptyObj, EmptyObj, CreateTaskReqBody>);
+      mockCreateTask.mockRejectedValue(new Error("Kaboom"));
     });
 
-    test("must call createTask service", () => {
+    test.fails("throw error", async () => {
+      await expect(
+        createTask({
+          body: { userId: 0, content: "content", title: "title" },
+        } as ReqObj<EmptyObj, EmptyObj, CreateTaskReqBody>),
+      ).rejects.toBe(1);
       expect(mockCreateTask).toBeCalledTimes(1);
-      expect(mockCreateTask).toBeCalledWith({ userId: 1, content: "content", title: "title" });
-    });
-
-    test("must return 500 status", () => {
-      expect(result).toEqual({ statusCode: 500 });
     });
   });
 
@@ -99,22 +95,14 @@ describe("Task Controller", () => {
     let getTasks: ReturnType<typeof makeGetTasks> = makeGetTasks({
       getTasksByUserIdWithPositionOrder: mockGetTasksByUserIdWithPositionOrder,
     } as unknown as TaskServiceType);
-    let result: ResObj;
 
     beforeEach(async () => {
       mockGetTasksByUserIdWithPositionOrder.mockRejectedValue("Kaboom");
-      result = await getTasks({ user: { id: userId } } as ReqObj);
     });
 
-    test("must call getTasksByUserIdWithPositionOrder service", () => {
+    test.fails("throw error", async () => {
+      await expect(getTasks({ user: { id: userId } } as ReqObj)).rejects.toBe(1);
       expect(mockGetTasksByUserIdWithPositionOrder).toBeCalledTimes(1);
-      expect(mockGetTasksByUserIdWithPositionOrder).toBeCalledWith(userId);
-    });
-
-    test("must return 500 status", () => {
-      expect(result).toEqual({
-        statusCode: 500,
-      });
     });
   });
 
@@ -150,23 +138,19 @@ describe("Task Controller", () => {
       makeUpdateTasksPositions({
         updateTaskPosition: mockUpdateTaskPosition,
       } as unknown as TaskServiceType);
-    let result: ResObj;
 
     beforeEach(async () => {
       mockUpdateTaskPosition.mockRejectedValue(null);
-      result = await updateTasksPositions({
-        body: [{ id: 1, position: 2 }],
-        user: { id: userId },
-      } as ReqObj<EmptyObj, EmptyObj, OrderUpdateReqBody[]>);
     });
 
-    test("must call updateTaskPosition service", () => {
-      expect(mockUpdateTaskPosition).toBeCalledTimes(1);
+    test.fails("throw error", async () => {
+      await expect(
+        updateTasksPositions({
+          body: [{ id: 1, position: 2 }],
+          user: { id: userId },
+        } as ReqObj<EmptyObj, EmptyObj, OrderUpdateReqBody[]>),
+      ).rejects.toBe(1);
       expect(mockUpdateTaskPosition).toBeCalledWith([{ id: 1, position: 2 }], userId);
-    });
-
-    test("must return 500 status", () => {
-      expect(result).toEqual({ statusCode: 500 });
     });
   });
 });

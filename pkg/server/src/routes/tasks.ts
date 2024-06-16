@@ -19,4 +19,8 @@ router
   .put(
     validate(UpdateTasksPositionSchema),
     makeExpressCallback<EmptyObj, EmptyObj, OrderUpdateReqBody[]>(updateTasksPositions),
+  )
+  .delete(
+    validate(UpdateTasksPositionSchema),
+    makeExpressCallback<EmptyObj, EmptyObj, { taskId: string }>(updateTasksPositions),
   );

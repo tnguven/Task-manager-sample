@@ -3,6 +3,7 @@ import type { UserModel } from "./user.model";
 
 import { Pool } from "pg";
 import { secrets } from "../config";
+import { logger } from "../logger";
 
 export type UserServiceType = ReturnType<typeof makeUserService>;
 
@@ -22,16 +23,17 @@ export const makeUserService = ({
   async getUserById(id: number) {
     const { rows } = await dbPool.query<UserModel>("SELECT * FROM users WHERE id = $1", [id]);
     if (!rows.length) {
-      console.log("No user found");
+      logger.info("No user found");
       return null;
     }
 
     return getUser(rows);
   },
+
   async getUserByEmail(email: string) {
     const { rows } = await dbPool.query<UserModel>("SELECT * FROM users WHERE email = $1", [email]);
     if (!rows.length) {
-      console.log("No user found");
+      logger.info("No user found");
       return null;
     }
 
@@ -46,7 +48,7 @@ export const makeUserService = ({
     );
 
     if (!rows.length) {
-      console.log("No user found");
+      logger.info("No user found");
       return null;
     }
 
@@ -62,8 +64,8 @@ export const makeUserService = ({
       return id;
     } catch (err) {
       await client.query("ROLLBACK");
-      console.error("Transaction error occurs :", err);
-      return err;
+      logger.error("Transaction error occurs :", err);
+      throw err;
     } finally {
       client.release();
     }

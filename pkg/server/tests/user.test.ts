@@ -76,6 +76,22 @@ describe("user route: /v1/user", () => {
       });
     });
 
+    describe.sequential("Authenticate JWToken", () => {
+      let headers: Record<string, string>;
+
+      test("GET: clear token if the token is not valid", async () => {
+        const invalidCookie = [
+          "JWToken=mxIxol_Ag-fbVYtOe6UVZakKcvMv-TyYKamEqBBbMHg; Max-Age=600; Path=/; HttpOnly; Secure; SameSite=Strict",
+        ];
+        const response = await requestWithCookie(routePath, "get", invalidCookie)
+          .expect(httpStatus.UNAUTHORIZED);
+
+        headers = response.header;
+
+        expect(headers["set-cookie"]).toBeUndefined();
+      });
+    });
+
     describe.sequential("Delete user", () => {
       let headers: Record<string, string>;
 

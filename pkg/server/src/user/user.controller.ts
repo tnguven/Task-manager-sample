@@ -6,6 +6,7 @@ import httpStatus from "http-status";
 import { setAuthCookies } from "../utils/set-auth-cookies";
 import { generateAccessToken } from "../utils/jwt-helper";
 import { serverConfig, secrets } from "../config";
+import { logger } from "../logger";
 
 type UserRequest = { email: string; password: string };
 
@@ -13,7 +14,7 @@ export const makeGetUser = (
   service: UserServiceType,
 ): ((req: ReqObj, res: Response) => Promise<ResObj>) => {
   return async (req) => {
-    const user = await service.getUserById(Number(req.user?.id))
+    const user = await service.getUserById(Number(req.user?.id));
     if (user === null)
       return {
         statusCode: httpStatus.UNAUTHORIZED,
@@ -25,9 +26,8 @@ export const makeGetUser = (
         body: user,
       };
     } catch (err) {
-      return {
-        statusCode: httpStatus.INTERNAL_SERVER_ERROR,
-      };
+      logger.error({ err }, "getUser: something went wrong");
+      throw err;
     }
   };
 };
@@ -45,9 +45,8 @@ export const makeDeleteUserByID = (
         statusCode: httpStatus.NO_CONTENT,
       };
     } catch (err) {
-      return {
-        statusCode: httpStatus.INTERNAL_SERVER_ERROR,
-      };
+      logger.error({ err }, "deleteUserById: something went wrong");
+      throw err;
     }
   };
 };
@@ -79,9 +78,8 @@ export const makeCreateUser = (
         body: user,
       };
     } catch (err) {
-      return {
-        statusCode: httpStatus.INTERNAL_SERVER_ERROR,
-      };
+      logger.error({ err }, "createUser: something went wrong");
+      throw err;
     }
   };
 };
@@ -111,9 +109,8 @@ export const makeLoginUser = (
         body: user,
       };
     } catch (err) {
-      return {
-        statusCode: httpStatus.INTERNAL_SERVER_ERROR,
-      };
+      logger.error({ err }, "loginUser: something went wrong");
+      throw err;
     }
   };
 };

@@ -1,6 +1,7 @@
 import type { Task, CreateTaskReqBody, CreatedTask, OrderUpdateReqBody } from "./task.model";
 
 import { Pool } from "pg";
+import { logger } from "../logger";
 
 export type TaskServiceType = ReturnType<typeof makeTaskService>;
 
@@ -8,7 +9,7 @@ export const getTaskIdsAndStatement = (taskOrders: OrderUpdateReqBody[]) =>
   taskOrders.reduce(
     (state, { id, position }) => {
       state.ids = `${state.ids ? `${state.ids}, ` : ""}${id}`;
-      state.caseStatements = `${state.caseStatements}WHEN ${id} THEN ${position} `;
+      state.caseStatements = `${state.caseStatements ? `${state.caseStatements} ` : ""}WHEN id = ${id} THEN ${position}`;
       return state;
     },
     { ids: "", caseStatements: "" } as {
@@ -19,78 +20,63 @@ export const getTaskIdsAndStatement = (taskOrders: OrderUpdateReqBody[]) =>
 
 export const makeTaskService = ({ dbPool }: { dbPool: Pool }) => ({
   async createTask({ content, title, userId }: CreateTaskReqBody): Promise<CreatedTask> {
-    const dbClient = await dbPool.connect();
+    const orderResult = await dbPool.query(
+      "SELECT MAX(position) as max_position FROM tasks WHERE user_id = $1;",
+      [userId],
+    );
+    const nextPosition = (orderResult.rows[0]?.max_position ?? 0) + 1;
 
-    try {
-      await dbClient.query("BEGIN");
-      const taskResult = await dbClient.query(
-        "INSERT INTO tasks (user_id, title, content) VALUES ($1, $2, $3) RETURNING id",
-        [userId, title, content],
-      );
-      const [{ id: taskId }] = taskResult.rows;
+    const { rows } = await dbPool.query<Task>(
+      "INSERT INTO tasks (user_id, title, content, position, updated_at) VALUES ($1, $2, $3, $4, $5) RETURNING *;",
+      [userId, title, content, nextPosition, new Date().toISOString()],
+    );
+    const result = rows[0];
 
-      const orderResult = await dbClient.query(
-        "SELECT MAX(position) as max_position FROM task_order WHERE user_id = $1",
-        [userId],
-      );
-      const nextPosition = (orderResult.rows[0].max_position ?? 0) + 1;
-
-      await dbClient.query(
-        "INSERT INTO task_order (user_id, task_id, position) VALUES ($1, $2, $3)",
-        [userId, taskId, nextPosition],
-      );
-      await dbClient.query("COMMIT");
-
-      return {
-        id: taskId,
-        userId,
-        title,
-        content,
-        position: nextPosition,
-      };
-    } catch (err) {
-      console.error(err);
-      await dbClient.query("ROLLBACK");
-      throw err;
-    } finally {
-      dbClient.release();
-    }
+    return {
+      id: result.id,
+      userId,
+      title: result.title,
+      content: result.content,
+      position: result.position,
+    };
   },
 
   async getTasksByUserIdWithPositionOrder(userId: number) {
-    try {
-      const { rows } = await dbPool.query<Task>(
-        `
-            SELECT t.id, t.title, t.content, t.created_at, o.position 
-            FROM tasks t
-            JOIN task_order o ON t.id = o.task_id
-            WHERE o.user_id = $1
-            ORDER BY o.position ASC`,
-        [userId],
-      );
-      return rows;
-    } catch (err) {
-      console.error("Can not fetch tasks: ", err);
-      throw err;
-    }
+    const { rows } = await dbPool.query<Task>(
+      `
+        SELECT id, title, content, created_at, position 
+        FROM tasks
+        WHERE user_id = $1
+        ORDER BY position ASC;
+      `,
+      [userId],
+    );
+    return rows;
   },
 
   async updateTaskPosition(taskOrders: OrderUpdateReqBody[], userId: number) {
-    const { ids, caseStatements } = getTaskIdsAndStatement(taskOrders);
+    const client = await dbPool.connect();
+
     try {
-      await dbPool.query(
-        `
-          UPDATE task_order
-          SET position = CASE task_id
-              ${caseStatements}
-          END
-          WHERE user_id = $1 AND task_id IN (${ids})
-        `,
-        [userId],
+      await client.query("BEGIN");
+
+      await Promise.all(
+        taskOrders.map(({ id, position }) =>
+          client.query("UPDATE tasks SET position = $1 WHERE user_id = $2 AND id = $3", [
+            position,
+            userId,
+            id,
+          ]),
+        ),
       );
+
+      await client.query("COMMIT");
     } catch (err) {
-      console.error("an error occur while updating position ", err);
+      logger.error({ err }, "updateTaskPosition: update task position transaction error occur");
+      await client.query("ROLLBACK");
       throw err;
+    } finally {
+      client.release();
     }
   },
 });

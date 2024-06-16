@@ -1,5 +1,4 @@
 import express from "express";
-import logger from "pino-http";
 import cors from "cors";
 import helmet from "helmet";
 import cookieParser from "cookie-parser";
@@ -10,7 +9,6 @@ import { router } from "./routes";
 
 export const server = express();
 
-server.use(logger())
 server.use(cors());
 server.use(helmet());
 server.use(cookieParser());

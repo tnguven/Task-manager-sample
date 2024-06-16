@@ -1,6 +1,7 @@
 import type { TaskServiceType } from "./task.service";
 import type { EmptyObj, ReqObj, ResObj } from "../types";
 import type { CreateTaskReqBody, OrderUpdateReqBody } from "./task.model";
+import { logger } from "../logger";
 
 import httpStatus from "http-status";
 
@@ -15,9 +16,8 @@ export const makeGetTasks =
         body: tasks,
       };
     } catch (err) {
-      return {
-        statusCode: httpStatus.INTERNAL_SERVER_ERROR,
-      };
+      logger.error({ err }, "GetTasks: something went wrong");
+      throw err;
     }
   };
 
@@ -33,10 +33,8 @@ export const makeCreateTask =
         body: task,
       };
     } catch (err) {
-      console.error(err);
-      return {
-        statusCode: httpStatus.INTERNAL_SERVER_ERROR,
-      };
+      logger.error({ err }, "something went wrong");
+      throw err;
     }
   };
 
@@ -50,9 +48,8 @@ export const makeUpdateTasksPositions =
       return {
         statusCode: httpStatus.OK,
       };
-    } catch {
-      return {
-        statusCode: httpStatus.INTERNAL_SERVER_ERROR,
-      };
+    } catch (err) {
+      logger.error({ err }, "updateTasksPositions: something went wrong");
+      throw err;
     }
   };
