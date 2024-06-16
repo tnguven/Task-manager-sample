@@ -1,4 +1,5 @@
 {
+  "name": "@task/client",
   "private": true,
   "scripts": {
     "dev": "next",

@@ -2,18 +2,16 @@ set-env:
 	@[ -f ./.env ] && true || cp env.example .env;
 
 install:
-	@pnpm install
+	pnpm install
 
 test-unit: install
-	@pnpm run test:unit
+	pnpm run test:unit
 
 test-integration: install
-	@pnpm run test:server:integration
+	pnpm run test:server:integration
 
-build-run: set-env
-	@docker-compose up --build -d
+start: set-env
+	docker compose -f docker-compose.dev.yml up
 
-run-apps: set-env
-	@docker-compose up -d
-
-build-run-test: set-env install build-run test
+stop:
+	docker compose -f docker-compose.dev.yml down
