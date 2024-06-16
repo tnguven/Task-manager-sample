@@ -2,9 +2,7 @@
 
 Sample application for a small task.
 
-<video width="320" height="240" controls>
-  <source src="screen-capture.mov" type="video/mp4">
-</video>
+https://github.com/tnguven/Task-manager-sample/assets/6273412/9830fc3a-14eb-46cd-bf4f-0ea1dbcc1319
 
 ## Main folder structure
 
