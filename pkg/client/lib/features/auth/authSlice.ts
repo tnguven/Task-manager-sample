@@ -79,6 +79,7 @@ export const authSlice = createAppSlice({
         },
         rejected: (state) => {
           state.status = "failed";
+          state.user = null;
           state.isAuthenticated = false;
         },
       },

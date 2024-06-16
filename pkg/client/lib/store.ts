@@ -6,17 +6,16 @@ import { taskSlice } from "./features/task/taskSlice";
 
 const rootReducer = combineSlices(authSlice, taskSlice);
 
-export type RootState = ReturnType<typeof rootReducer>;
-
-export const makeStore = () => {
+export const makeStore = (preloadedState?: Partial<RootState>) => {
   return configureStore({
     reducer: rootReducer,
-    devTools: true,
+    preloadedState,
+    devTools: false,
   });
 };
 
+export type RootState = ReturnType<typeof rootReducer>;
 export type AppStore = ReturnType<typeof makeStore>;
-
 export type AppDispatch = AppStore["dispatch"];
 export type AppThunk<ThunkReturnType = void> = ThunkAction<
   ThunkReturnType,

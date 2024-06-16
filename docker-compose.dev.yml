@@ -29,7 +29,7 @@ services:
       - task-dev-network
     depends_on:
       - api
-      # - client
+      - client
 
   api:
     image: server

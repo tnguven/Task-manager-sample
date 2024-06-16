@@ -2,10 +2,11 @@
 
 import { useForm, SubmitHandler } from "react-hook-form";
 import { Input } from "@/app/components/form/Input";
-import { selectStatus, addTaskAsync } from "@/lib/features/task/taskSlice";
+import { selectStatus, addTaskAsync, selectTasks } from "@/lib/features/task/taskSlice";
 import { selectUser } from "@/lib/features/auth/authSlice";
 import { useAppSelector, useAppDispatch } from "@/lib/hooks";
 import styles from "./AddTaskForm.module.css";
+import { useEffect } from "react";
 
 type Inputs = {
   task: string;
@@ -15,20 +16,24 @@ export const AddTaskForm = () => {
   const dispatch = useAppDispatch();
   const user = useAppSelector(selectUser);
   const status = useAppSelector(selectStatus);
-  const {
-    register,
-    handleSubmit,
-    reset,
-  } = useForm<Inputs>();
+  const tasks = useAppSelector(selectTasks);
+  const { register, handleSubmit, reset, setFocus } = useForm<Inputs>();
 
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
-    await dispatch(addTaskAsync({
-      content: data.task,
-      title: data.task.substring(0, 10),
-      userId: user?.id ?? ""
-    }));
+    if (!data) return;
+    await dispatch(
+      addTaskAsync({
+        content: data.task,
+        title: data.task.substring(0, 10),
+        userId: user?.id ?? "",
+      }),
+    );
     reset();
   };
+
+  useEffect(() => {
+    setFocus("task");
+  }, [tasks.length]);
 
   return (
     <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>

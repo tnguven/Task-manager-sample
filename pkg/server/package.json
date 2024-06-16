@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "start": "node dist/index.js",
-    "test:unit": "vitest --run ./src",
-    "test:integration": "vitest --run --sequence.concurrent ./tests",
+    "test:unit": "vitest --run --silent ./src",
+    "test:integration": "vitest --run --silent --sequence.concurrent ./tests",
     "build": "node esbuild.config.js",
     "type-check": "tsc --noEmit --outDir ../../.cache",
     "prettier": "prettier",
@@ -22,6 +22,7 @@
     "http-status": "^1.7.4",
     "jsonwebtoken": "^9.0.2",
     "pg": "^8.12.0",
+    "pino-http": "^10.1.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {

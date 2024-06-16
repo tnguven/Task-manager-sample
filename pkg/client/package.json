@@ -3,7 +3,8 @@
   "scripts": {
     "dev": "next",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "tes:unit": "vitest --run --silent"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.6.0",
@@ -20,9 +21,18 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@testing-library/dom": "^10.1.0",
+    "@testing-library/jest-dom": "^6.4.6",
+    "@testing-library/react": "^16.0.0",
+    "@testing-library/user-event": "^14.5.2",
     "@types/node": "20.2.5",
     "@types/react": "18.2.37",
     "@types/react-dom": "^18.2.18",
-    "typescript": "^5.3.3"
+    "@types/redux-mock-store": "^1.0.6",
+    "@vitejs/plugin-react": "^4.3.1",
+    "jsdom": "^24.1.0",
+    "typescript": "^5.3.3",
+    "vite-tsconfig-paths": "^4.3.2",
+    "vitest": "^1.6.0"
   }
 }

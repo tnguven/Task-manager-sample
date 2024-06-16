@@ -16,7 +16,6 @@ export default function IndexPage() {
   }, []);
 
   useEffect(() => {
-    console.log("isAuthenticated", isAuthenticated);
     if (isAuthenticated) {
       Router.push("/task");
     }
