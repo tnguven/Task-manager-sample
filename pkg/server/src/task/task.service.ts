@@ -8,7 +8,7 @@ export const getTaskIdsAndStatement = (taskOrders: OrderUpdateReqBody[]) =>
   taskOrders.reduce(
     (state, { id, position }) => {
       state.ids = `${state.ids ? `${state.ids}, ` : ""}${id}`;
-      state.caseStatements = `${state.caseStatements}WHEN ${id} THEN ${position} `;
+      state.caseStatements = `${state.caseStatements ? `${state.caseStatements} ` : ""}WHEN id = ${id} THEN ${position}`;
       return state;
     },
     { ids: "", caseStatements: "" } as {
@@ -19,41 +19,29 @@ export const getTaskIdsAndStatement = (taskOrders: OrderUpdateReqBody[]) =>
 
 export const makeTaskService = ({ dbPool }: { dbPool: Pool }) => ({
   async createTask({ content, title, userId }: CreateTaskReqBody): Promise<CreatedTask> {
-    const dbClient = await dbPool.connect();
-
     try {
-      await dbClient.query("BEGIN");
-      const taskResult = await dbClient.query(
-        "INSERT INTO tasks (user_id, title, content) VALUES ($1, $2, $3) RETURNING id",
-        [userId, title, content],
-      );
-      const [{ id: taskId }] = taskResult.rows;
-
-      const orderResult = await dbClient.query(
-        "SELECT MAX(position) as max_position FROM task_order WHERE user_id = $1",
+      const orderResult = await dbPool.query(
+        "SELECT MAX(position) as max_position FROM tasks WHERE user_id = $1;",
         [userId],
       );
-      const nextPosition = (orderResult.rows[0].max_position ?? 0) + 1;
+      const nextPosition = (orderResult.rows[0]?.max_position ?? 0) + 1;
 
-      await dbClient.query(
-        "INSERT INTO task_order (user_id, task_id, position) VALUES ($1, $2, $3)",
-        [userId, taskId, nextPosition],
+      const { rows } = await dbPool.query<Task>(
+        "INSERT INTO tasks (user_id, title, content, position, updated_at) VALUES ($1, $2, $3, $4, $5) RETURNING *;",
+        [userId, title, content, nextPosition, new Date().toISOString()],
       );
-      await dbClient.query("COMMIT");
+      const result = rows[0];
 
       return {
-        id: taskId,
+        id: result.id,
         userId,
-        title,
-        content,
-        position: nextPosition,
+        title: result.title,
+        content: result.content,
+        position: result.position,
       };
     } catch (err) {
       console.error(err);
-      await dbClient.query("ROLLBACK");
       throw err;
-    } finally {
-      dbClient.release();
     }
   },
 
@@ -61,11 +49,11 @@ export const makeTaskService = ({ dbPool }: { dbPool: Pool }) => ({
     try {
       const { rows } = await dbPool.query<Task>(
         `
-            SELECT t.id, t.title, t.content, t.created_at, o.position 
-            FROM tasks t
-            JOIN task_order o ON t.id = o.task_id
-            WHERE o.user_id = $1
-            ORDER BY o.position ASC`,
+          SELECT id, title, content, created_at, position 
+          FROM tasks
+          WHERE user_id = $1
+          ORDER BY position ASC;
+        `,
         [userId],
       );
       return rows;
@@ -80,11 +68,12 @@ export const makeTaskService = ({ dbPool }: { dbPool: Pool }) => ({
     try {
       await dbPool.query(
         `
-          UPDATE task_order
-          SET position = CASE task_id
-              ${caseStatements}
+          UPDATE tasks
+          SET position = CASE
+            ${caseStatements}
+            ELSE position
           END
-          WHERE user_id = $1 AND task_id IN (${ids})
+          WHERE user_id = $1 AND id IN (${ids});
         `,
         [userId],
       );

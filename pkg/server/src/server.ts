@@ -10,7 +10,7 @@ import { router } from "./routes";
 
 export const server = express();
 
-server.use(logger())
+server.use(logger({ autoLogging: process.env.NODE_ENV !== "test" }));
 server.use(cors());
 server.use(helmet());
 server.use(cookieParser());

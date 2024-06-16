@@ -5,7 +5,7 @@
     "dev": "next",
     "build": "next build",
     "start": "next start",
-    "tes:unit": "vitest --run --silent"
+    "test:unit": "vitest --run --silent"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.6.0",
